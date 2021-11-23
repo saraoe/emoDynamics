@@ -1,0 +1,11 @@
+dacy
+danlp==0.0.11
+spacy[cuda101] 
+thinc[torch]
+spacy-transformers
+https://huggingface.co/spacy/da_core_news_lg/resolve/main/da_core_news_lg-any-py3-none-any.whl
+ndjson
+glob
+pandas
+csv
+sklearn

@@ -1,0 +1,20 @@
+Importing modules
+Starting time
+Prepare models
+Model bert.subjective exists in /home/commando/.danlp/bert.subjective
+Model bert.noemotion exists in /home/commando/.danlp/bert.noemotion
+Model bert.emotion exists in /home/commando/.danlp/bert.emotion
+Model bert.polarity exists in /home/commando/.danlp/bert.polarity
+Reading in files
+opening /data/004_twitter-stopword/da_stopwords_part3_2019-01-01_2020-12-31.ndjson
+opening /data/004_twitter-stopword/da_stopwords_part2_2019-01-01_2020-12-31.ndjson
+Traceback (most recent call last):
+  File "tweets_bert.py", line 75, in <module>
+    data = ndjson.load(f)
+  File "/home/commando/.virtualenvs/info/lib/python3.6/site-packages/ndjson/api.py", line 9, in load
+    return json.load(*args, **kwargs)
+  File "/usr/lib/python3.6/json/__init__.py", line 296, in load
+    return loads(fp.read(),
+  File "/home/commando/.virtualenvs/info/lib/python3.6/codecs.py", line 321, in decode
+    (result, consumed) = self._buffer_decode(data, self.errors, final)
+MemoryError

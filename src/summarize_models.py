@@ -1,11 +1,13 @@
 '''
 For summarizing the BERT emotion probabilities
 '''
+import argparse
 import pandas as pd
 import numpy as np
 import re
 import ndjson
 import time
+import os
 
 
 ## Define functions ##
@@ -29,7 +31,6 @@ def emotion_distribution_mean(emo_lists: list) -> list:
     '''
     Takes mean of each emotion probability in a BERT emotion probability list.
     '''
-    n = len(emo_lists)
     return [(np.mean(prob), np.std(prob)) for prob in zip(*emo_lists)]
 
 
@@ -47,6 +48,7 @@ def read_in_csv(filepath: str, time_col: str, emo_col: str, tweets=True, fix_col
     return
         pandas.DataFrame
     '''
+    start_time = time.time()
     ## load in data ##
     print('read data')
     chunks = pd.read_csv(filepath, header = 0,
@@ -83,7 +85,7 @@ def write_ndjson_by_group(df, group_by: list, filename: str, emo_col: str):
     '''
     grouped = df.groupby(group_by)
     for name, group in grouped:
-        print(name, ', time =', time.time()-start_time)
+        print('Group', name)
         if emo_col == 'Bert_emo_emotion_prob':
             emo_lists = list(map(get_emotion_distribution,list(group[emo_col])))
         if emo_col == 'polarity_prob':
@@ -95,21 +97,35 @@ def write_ndjson_by_group(df, group_by: list, filename: str, emo_col: str):
             f.write('\n')
 
 
-if __name__ == '__main__':
-    start_time = time.time()
-    df = read_in_csv('/home/commando/stine-sara/data/emotion_tweets_2019.csv', 
-                     time_col = 'created_at', emo_col = 'polarity_prob')#, fix_col=True)
+def main(filepath: str, output_name: str, emo_col: str, time_col: str):
+    df = read_in_csv(filepath, 
+                     time_col = time_col, emo_col = emo_col)
 
     # write ndjson
     write_ndjson_by_group(df, group_by = ['date', 'hour'], 
-                          filename = "../summarized_emo/tweets19_pol_date_hour_sd", 
-                          emo_col = 'polarity_prob')
+                          filename = os.path.join('..', 'summarized_emo', f'{output_name}_date_hour'), 
+                          emo_col = emo_col)
     print('finished grouped by date and hour')
 
     write_ndjson_by_group(df, group_by = ['date'], 
-                          filename = "../summarized_emo/tweets19_pol_date_sd", 
-                          emo_col = 'polarity_prob')
+                          filename = os.path.join('..', 'summarized_emo', f'{output_name}_date'), 
+                          emo_col = emo_col)
     print('finished grouped by date')
-    
-    
-    
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--filepath', type=str, required=True,
+                        help='Path for the file containing the emotion scores')
+    parser.add_argument('--output_name', type=str, required=True,
+                        help='Name of the output file')
+    parser.add_argument('--emotion_col', type=str, required=True,
+                        help='The name of the column with the emotion scores')
+    parser.add_argument('--time_col', type=str, required=True,
+                        help='The name of the column with time/date')
+    args = parser.parse_args()
+
+    main(filepath=args.filepath,
+         output_name=args.output_name,
+         emo_col=args.emotion_col,
+         time_col=args.time_col)

@@ -1,9 +1,6 @@
 src/__pycache__/*
-count_emo.py
-merge_ndjson.py
-tab_nontab_split.py
 newsFluxus/*
-notebooks/vis_emotionFluxus_Stine.ipynb
+old_summarized_emo/*
+old_idmdl/*
 *.png
-*.csv
-*.ndjson
+*csv

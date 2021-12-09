@@ -1,5 +1,8 @@
 '''
 Functions for preprocessing the tweets
+
+These are modified versions of functions written by Maris Sala
+https://github.com/marissala/HOPE-keyword-query-Twitter
 '''
 ### Load modules ###
 import re

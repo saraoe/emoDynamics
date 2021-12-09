@@ -4,7 +4,7 @@ Applying the methods of newsFluxus to BERT emotion distribution
 - Transience
 - Resonance 
 
-Emotion distributions from tweets and news frontpages
+Emotion distributions can be both eight emotions from BERT Emotion and polarity from BERT Tone
 '''
 import argparse
 from typing import List
@@ -51,16 +51,20 @@ def get_data_time(d: dict) -> list:
     return data, time
 
 
-def extract_excluded_emos(filename: str, out_folder: str, out_name: str, window: int, labels: List[str] = [
-        "Glæde/Sindsro",
-        "Tillid/Accept",
-        "Forventning/Interrese",
-        "Overasket/Målløs",
-        "Vrede/Irritation",
-        "Foragt/Modvilje",
-        "Sorg/trist",
-        "Frygt/Bekymret",
-    ]):
+def extract_excluded_emos(filename: str, 
+                          out_folder: str, 
+                          out_name: str, 
+                          window: int, 
+                          labels: List[str] = [
+                            "Glæde/Sindsro",
+                            "Tillid/Accept",
+                            "Forventning/Interrese",
+                            "Overasket/Målløs",
+                            "Vrede/Irritation",
+                            "Foragt/Modvilje",
+                            "Sorg/trist",
+                            "Frygt/Bekymret",
+                        ]):
     '''
     Extracts novelty, transience and resonance excluding each emotion one at a time
     Writes to csv
@@ -107,9 +111,13 @@ def main(filenames: List[str], window: int, extract_emos: str):
         out_path = os.path.join("idmdl", f"{file}_W{window}.csv")
         main_extract(filename, out_path, window)
     
-        if extract_emos:
+        if extract_emos == 'emo':
             out_folder = "idmdl"
             extract_excluded_emos(filename, out_folder, file, window)
+        if extract_emos == 'pol':
+            labels = ['positve', 'neutral', 'negative']
+            out_folder = "idmdl"
+            extract_excluded_emos(filename, out_folder, file, window, labels)
 
 
 if __name__ == '__main__':
@@ -118,10 +126,16 @@ if __name__ == '__main__':
                         help='Filenames of the input files')
     parser.add_argument('--window', type=int, required=False, default=3,
                         help='Size of the window')
-    parser.add_argument('--extract_emotions', type=bool, required=False, default=None,
-                        help='If "True" the emotion dynamics signal for the individual emotions are calculated')
+    parser.add_argument('--extract_emotions', type=str, required=False, default=None,
+                        help='''If defined the emotion dynamics signal for the individual emotions are calculated. 
+                                The argument must be either "emo" or "pol", detmining whether the emotions come 
+                                from BERT emotion or BERT Tone.''')
     args = parser.parse_args()
 
+    print(f'''Running emotionFluxus.py with:
+             filenames={args.filenames},
+             window={args.window},
+             extract_emos={args.extract_emotions}''')
     main(filenames=args.filenames,
          window=args.window,
          extract_emos=args.extract_emotions)

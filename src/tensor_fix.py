@@ -3,9 +3,6 @@ generator function for splitting text into max 512 tokens
 '''
 
 import spacy
-import pandas as pd
-import numpy as np
-import time
 from spacy_transformers.util import huggingface_tokenize
 from transformers import AutoTokenizer
 

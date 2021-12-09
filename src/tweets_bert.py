@@ -1,6 +1,5 @@
 '''
 Runing Bert model on tweets
-- From 2019
 
 Models:
 - Vader

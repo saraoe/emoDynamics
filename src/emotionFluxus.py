@@ -4,12 +4,16 @@ Applying the methods of newsFluxus to BERT emotion distribution
 - Transience
 - Resonance 
 
-Emotion distributions from tweets and news frontpages
+Emotion distributions can be both eight emotions from BERT Emotion and polarity from BERT Tone
 '''
-import os, sys
+import argparse
+from typing import List
+
 import ndjson, datetime
 import pandas as pd
-path = os.path.join("..", "newsFluxus", "src")
+
+import os, sys
+path = os.path.join("newsFluxus", "src")
 sys.path.append(path)
 
 from main_extractor import extract_novelty_resonance
@@ -47,16 +51,20 @@ def get_data_time(d: dict) -> list:
     return data, time
 
 
-def extract_excluded_emos(filename: str, out_folder: str, window: int, labels: list = [
-        "Glæde/Sindsro",
-        "Tillid/Accept",
-        "Forventning/Interrese",
-        "Overasket/Målløs",
-        "Vrede/Irritation",
-        "Foragt/Modvilje",
-        "Sorg/trist",
-        "Frygt/Bekymret",
-    ]):
+def extract_excluded_emos(filename: str, 
+                          out_folder: str, 
+                          out_name: str, 
+                          window: int, 
+                          labels: List[str] = [
+                            "Glæde/Sindsro",
+                            "Tillid/Accept",
+                            "Forventning/Interrese",
+                            "Overasket/Målløs",
+                            "Vrede/Irritation",
+                            "Foragt/Modvilje",
+                            "Sorg/trist",
+                            "Frygt/Bekymret",
+                        ]):
     '''
     Extracts novelty, transience and resonance excluding each emotion one at a time
     Writes to csv
@@ -67,14 +75,14 @@ def extract_excluded_emos(filename: str, out_folder: str, window: int, labels: l
     data, time = get_data_time(emo_file)
 
     #Leave one emotion out at a time and extract novelty and resonance
-    for i in range(len(labels)):
+    for i, label in enumerate(labels):
         df = pd.DataFrame()
         df['date'] = time
-        df[f'no_{labels[i]}'] = [d[:i] + d[i+1:] for d in data]
-        out_path = out_folder + f"tweets_emotion_no_{labels[i][:4]}.csv"
-        df = extract_novelty_resonance(df, df[f'no_{labels[i]}'], time, window)
+        df[f'no_{label}'] = [d[:i] + d[i+1:] for d in data]
+        out_path = os.path.join(out_folder, f"{out_name}_W{window}_no_{label[:4]}.csv")
+        df = extract_novelty_resonance(df, df[f'no_{label}'], time, window)
         df.to_csv(out_path, index=False)
-        print(f'Saved file excluding {labels[i]}')
+        print(f'Saved file excluding {label}')
 
 
 def main_extract(filename: str, out_path: str, window: int):
@@ -94,18 +102,40 @@ def main_extract(filename: str, out_path: str, window: int):
     df.to_csv(out_path, index=False)
 
 
-if __name__ == '__main__':
-    # in_files = ['emo', 'pol']
-    # out_files = ['polarity', 'emotion']
-    # window = 7
-    # for in_file, out_file in zip(in_files, out_files):
-    #     filename = os.path.join("..", "summarized_emo", f"tweets_{in_file}_date.ndjson")
-    #     out_path = os.path.join("..", "idmdl", f"tweets_{out_file}_date_W7.csv")
-    #     main_extract(filename, out_path, window)
+def main(filenames: List[str], window: int, extract_emos: str):
+    if not os.path.exists("idmdl"):
+        os.makedirs("idmdl")
 
-    filename = '../summarized_emo/tweets_recol_emo_date_hour_sd.ndjson'
-    out_path = '../idmdl/tweets_recol_emotion_date_hour_12.csv'
-    #Exlcude emotions
-    # extract_excluded_emos(filename, out_path, window = 3)
-    #Run regular
-    main_extract(filename, out_path, window=12)
+    for file in filenames:
+        filename = os.path.join("summarized_emo", f"{file}.ndjson")
+        out_path = os.path.join("idmdl", f"{file}_W{window}.csv")
+        main_extract(filename, out_path, window)
+    
+        if extract_emos == 'emo':
+            out_folder = "idmdl"
+            extract_excluded_emos(filename, out_folder, file, window)
+        if extract_emos == 'pol':
+            labels = ['positve', 'neutral', 'negative']
+            out_folder = "idmdl"
+            extract_excluded_emos(filename, out_folder, file, window, labels)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--filenames', type=str, required=True, nargs='+',
+                        help='Filenames of the input files')
+    parser.add_argument('--window', type=int, required=False, default=3,
+                        help='Size of the window')
+    parser.add_argument('--extract_emotions', type=str, required=False, default=None,
+                        help='''If defined the emotion dynamics signal for the individual emotions are calculated. 
+                                The argument must be either "emo" or "pol", detmining whether the emotions come 
+                                from BERT emotion or BERT Tone.''')
+    args = parser.parse_args()
+
+    print(f'''Running emotionFluxus.py with:
+             filenames={args.filenames},
+             window={args.window},
+             extract_emos={args.extract_emotions}''')
+    main(filenames=args.filenames,
+         window=args.window,
+         extract_emos=args.extract_emotions)

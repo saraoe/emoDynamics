@@ -8,7 +8,7 @@ import sys
 import argparse
 
 #Code from newsFluxus Github. 
-path = os.path.join("..", "newsFluxus", "src")
+path = os.path.join("newsFluxus", "src")
 sys.path.append(path)
 import news_uncertainty
 
@@ -18,10 +18,10 @@ def main(filename:str, span:int):
     Reads in a csv with emoDynamics extracted. Smooths the signals
     Writes to csv and returns df
     '''
-    filepath = os.path.join("..", "idmdl", f"{filename}.csv")
-    if not os.path.exists(os.path.join("..","idmdl", "smoothed")):
-        os.makedirs(os.path.join("..", "idmdl", "smoothed"))
-    out_path = os.path.join("..","idmdl", "smoothed", f"{filename}_smoothed_{span}.csv")
+    filepath = os.path.join("idmdl", f"{filename}.csv")
+    if not os.path.exists(os.path.join("idmdl", "smoothed")):
+        os.makedirs(os.path.join("idmdl", "smoothed"))
+    out_path = os.path.join("idmdl", "smoothed", f"{filename}_smoothed_{span}.csv")
 
     df = pd.read_csv(filepath)
     df["smoothed_transience"] = news_uncertainty.adaptive_filter(df["transience"], span=span)

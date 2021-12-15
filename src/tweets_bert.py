@@ -10,7 +10,7 @@ Models:
 '''
 
 ### Load modules ###
-print("Importing modules")
+import argparse
 import ndjson
 from glob import glob
 import pandas as pd
@@ -50,7 +50,7 @@ def gen_to_tuple_gen(generator,field="text"):
         yield post[field], post
 
 
-def main(in_filepath: str, out_file: str):
+def main(in_filepath: str, out_filepath: str):
     ## All models ##
     print('Prepare models')
     nlp = spacy.load("da_core_news_lg") 
@@ -74,7 +74,7 @@ def main(in_filepath: str, out_file: str):
                                 "Bert_emo_emotion_prob", 
                                 "polarity", 
                                 "polarity_prob"])
-    out.to_csv(f'/home/commando/stine-sara/data/{out_file}.csv')
+    out.to_csv(f'{out_filepath}.csv')
 
     gen = ndjson_gen(in_filepath)
     tuple_gen = gen_to_tuple_gen(gen)
@@ -119,7 +119,7 @@ def main(in_filepath: str, out_file: str):
             pol_label,
             pol_label_prob]
 
-        append_list_as_row(f'/home/commando/stine-sara/data/{out_file}.csv', row)
+        append_list_as_row(f'{out_filepath}.csv', row)
         mid_time = time.time()
         if index % 100 == 0: 
             print(f'Running model on row number {index} now finished - time in min: {(mid_time - model_time)/60}')
@@ -127,12 +127,19 @@ def main(in_filepath: str, out_file: str):
 
 
 if __name__=='__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--in_filepath', type=str, required=True,
+                        help='Filepath for the input files')
+    parser.add_argument('--out_filepath', type=str, required=True,
+                        help='Name of the output filepath')
+    args = parser.parse_args()
+
     print("Starting time")
     time_start = time.time()
 
-    in_filepath = '/data/004_twitter-stopword/*.ndjson'
-    out_file = 'emotion_tweets_2021'
-    main(in_filepath, out_file)
+    in_filepath = args.in_filename
+    out_filepath = args.out_filepath
+    main(in_filepath, out_filepath)
 
     time_end = time.time() 
     total_time = time_end - time_start

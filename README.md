@@ -1,5 +1,7 @@
 # Emotion dynamics on tweets during COVID19
 
+![Resonance](fig/W3_smooth150_res.png)
+
 ## Abstract
 
 ## Project Organization
@@ -42,6 +44,10 @@ bash run.sh
 ```
 
 *NB: This only runs ```src/emotionFluxus.py``` and ```src/smoothing.py``` but not the rest of the pipeline, as the tweets used for this is not shared on git!* 
+
+To visualize the results and run the linear models
+- run ```notebooks/vis_emotionFluxus.ipynb``` to visualize the novelty and resonance signals
+- run ```notebooks/linear_models.ipynb``` to fit and visualize the linear regressions between novelty and resonance
 
 ## Acknowledgments
 

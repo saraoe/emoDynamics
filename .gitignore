@@ -2,5 +2,4 @@ src/__pycache__/*
 newsFluxus/*
 old_summarized_emo/*
 old_idmdl/*
-*.png
 *csv

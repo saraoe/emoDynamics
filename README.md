@@ -15,6 +15,8 @@ The organization of the project is as follows:
 ├── logs                       
 ├── newsFluxus                 <- the repo newsFluxus from CHCAA github
 ├── notebooks                  <- notebooks for plotting      
+│   ├── linear_models.ipynb
+│   ├── vis_emotionFluxus.ipynb
 │   └── ...
 ├── src                        <- main scripts
 │   ├── tweets_bert.py

@@ -11,3 +11,4 @@ statsmodels==0.12.2
 matplotlib==3.3.3
 seaborn==0.11.2
 pyplot-themes==0.2.2
+ruptures

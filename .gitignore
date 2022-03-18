@@ -2,6 +2,7 @@ src/__pycache__/*
 newsFluxus/*
 old_summarized_emo/*
 old_idmdl/*
+change_point_detection/*
 src/tensor_fix.py
 src/news_bert.py
 *csv

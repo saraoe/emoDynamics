@@ -13,6 +13,7 @@ Models:
 import argparse
 import ndjson
 from glob import glob
+import re
 import pandas as pd
 import preprocess
 import spacy
@@ -44,7 +45,7 @@ def ndjson_gen(filepath: str):
 
 def gen_to_tuple_gen(generator,field="text"):
     for post in generator:  
-        if "^RT" in post[field]: # remove retweets
+        if re.search("^RT", post[field]): # remove retweets
             continue
         post[field] = preprocess.clean_tweets(post[field])
         yield post[field], post

@@ -6,5 +6,6 @@ change_point_detection/*
 src/tensor_fix.py
 src/news_bert.py
 *csv
+*.log
 merge_ndjson.py
 remove_retweets.py

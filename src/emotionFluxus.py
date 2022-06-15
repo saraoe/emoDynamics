@@ -51,6 +51,16 @@ def get_data_time(d: dict) -> list:
     return data, time
 
 
+def exclude_emotion_from_distribution(emo_distribution: List[int], index: int):
+    '''
+    Removes the emotion according to the index.
+    Returns list with all the other emotions, with same relative size. 
+    Sum of the returned list is still 1
+    '''
+    exclude_emo = emo_distribution[:index] + emo_distribution[index+1:]
+    return [emo/sum(exclude_emo) for emo in exclude_emo]
+
+
 def extract_excluded_emos(filename: str, 
                           out_folder: str, 
                           out_name: str, 
@@ -78,7 +88,8 @@ def extract_excluded_emos(filename: str,
     for i, label in enumerate(labels):
         df = pd.DataFrame()
         df['date'] = time
-        df[f'no_{label}'] = [d[:i] + d[i+1:] for d in data]
+        # df[f'no_{label}'] = [d[:i] + d[i+1:] for d in data]
+        df[f'no_{label}'] = [exclude_emotion_from_distribution(d, i) for d in data]
         out_path = os.path.join(out_folder, f"{out_name}_W{window}_no_{label[:4]}.csv")
         df = extract_novelty_resonance(df, df[f'no_{label}'], time, window)
         df.to_csv(out_path, index=False)

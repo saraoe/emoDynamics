@@ -7,3 +7,8 @@ https://huggingface.co/spacy/da_core_news_lg/resolve/main/da_core_news_lg-any-py
 ndjson==0.3.1
 pandas==1.1.5
 sklearn==0.0
+statsmodels==0.12.2
+matplotlib==3.3.3
+seaborn==0.11.2
+pyplot-themes==0.2.2
+spacy_wrap

@@ -115,12 +115,12 @@ def main(filepath: str, output_name: str, emo_col: str, time_col: str, only_emo:
 
     # write ndjson
     write_ndjson_by_group(df, group_by = ['date', 'hour'], 
-                          filename = os.path.join('..', 'summarized_emo', f'{output_name}_date_hour'), 
+                          filename = os.path.join('summarized_emo', f'{output_name}_date_hour'), 
                           emo_col = emo_col)
     print('finished grouped by date and hour')
 
     write_ndjson_by_group(df, group_by = ['date'], 
-                          filename = os.path.join('..', 'summarized_emo', f'{output_name}_date'), 
+                          filename = os.path.join('summarized_emo', f'{output_name}_date'), 
                           emo_col = emo_col)
     print('finished grouped by date')
 

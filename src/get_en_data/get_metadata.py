@@ -32,6 +32,7 @@ import argparse
 import os
 import os.path as osp
 import pandas as pd
+import sys
 # from tweepy import TweepError
 from time import sleep
 
@@ -57,7 +58,7 @@ def main():
 
     auth = tweepy.OAuthHandler(keys['consumer_key'], keys['consumer_secret'])
     auth.set_access_token(keys['access_token'], keys['access_token_secret'])
-    api = tweepy.API(auth, wait_on_rate_limit=True, retry_delay=60*3, retry_count=5,retry_errors=set([401, 404, 500, 503]), wait_on_rate_limit_notify=True)
+    api = tweepy.API(auth, wait_on_rate_limit=True, retry_delay=60*3, retry_count=5,retry_errors=set([401, 404, 500, 503]))
     
     if api.verify_credentials() == False: 
         print("Your twitter api credentials are invalid") 
@@ -125,11 +126,11 @@ def main():
                 while True:
                     try:
                         if hydration_mode == "e":
-                            tweets = api.statuses_lookup(id_batch,tweet_mode = "extended")
+                            tweets = api.lookup_statuses(id_batch,tweet_mode = "extended")
                         else:
-                            tweets = api.statuses_lookup(id_batch)
+                            tweets = api.lookup_statuses(id_batch)
                         break
-                    except tweepy.TweepError as ex:
+                    except tweepy.error.TweepError as ex:
                         print('Caught the TweepError exception:\n %s' % ex)
                         sleep(30*backOffCounter)  # sleep a bit to see if connection Error is resolved before retrying
                         backOffCounter += 1  # increase backoff

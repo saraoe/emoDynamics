@@ -77,4 +77,5 @@ if __name__ == "__main__":
     filter_tweets(in_file_path, out_file_path, language)
 
 
-    # When authentication is set up using twitter_credentials.py, run python get_metadata.py -i clean-dataset-filtered.tsv -o hydrated_tweets -k api_keys.json
+    # When authentication is set up using twitter_credentials.py, run 
+    # python get_metadata.py -i clean_data_en_tweets.tsv -o hydrated_tweets -k api_keys.json

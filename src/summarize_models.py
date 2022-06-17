@@ -12,24 +12,19 @@ from typing import List
 
 
 ## Define functions ##
-def get_emotion_distribution(emo: str, n: int=8):
+def get_emotion_distribution(emo: str):
     '''
     For transforming the BERT emotion distribution from a str to a list of floats
     If there is no emotion distribution, it returns NaN
     '''
     if not isinstance(emo, str): # if emo == NaN
         return emo
-    emo_list = re.split(r'\s+', emo[1:-1])[:n]
+    emo_list = re.split(r'\s+', emo[1:-1])
+    while '' in emo_list:  # often there is whitespace at the end
+        emo_list.pop()
     emo_list = list(map(lambda x: float(x), emo_list))
     return emo_list
 
-
-def get_polarity_distribution(emo: str):
-    '''
-    Using get_emotion_distribution on polarity, where there are only
-    three categories
-    '''
-    return get_emotion_distribution(emo, 3)
 
 
 def emotion_distribution_mean(emo_lists: list) -> list:
@@ -96,10 +91,7 @@ def write_ndjson_by_group(df: pd.DataFrame, group_by: List[str], filename: str, 
     grouped = df.groupby(group_by)
     for name, group in grouped:
         print('Group', name)
-        if emo_col == 'Bert_emo_emotion_prob':
-            emo_lists = list(map(get_emotion_distribution,list(group[emo_col])))
-        if emo_col == 'polarity_prob':
-            emo_lists = list(map(get_polarity_distribution,list(group[emo_col])))
+        emo_lists = list(map(get_emotion_distribution,list(group[emo_col])))
         emo_prob, emo_prob_sd = zip(*emotion_distribution_mean(emo_lists))
         line = [{'group': name, 'emo_prob': emo_prob, 'emo_prob_sd': emo_prob_sd}]
         with open(f'{filename}.ndjson', 'a') as f:

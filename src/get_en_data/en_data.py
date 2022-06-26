@@ -8,9 +8,9 @@ import time
 import os
 import argparse
 from typing import Union
+import pandas as pd
 
-
-def filter_tweets(in_file:str, out_file:str, language:Union[str, list]=None):
+def filter_tweets(in_file:str, out_file:str, language:Union[str, list]=None, samples=None):
     """This function filters the unzipped tweets and saves in a new .tsv file
 
     Args:
@@ -53,6 +53,11 @@ def filter_tweets(in_file:str, out_file:str, language:Union[str, list]=None):
         with open(out_file, 'w') as f_output:
             for item in filtered_tw:
                 f_output.write(item)
+    
+    if samples:
+        data = pd.read_csv(out_file, sep="\t")
+        samp = data.sample(samples)
+        samp.to_csv(f"{out_file.split('.')[0]}_samples.tsv", sep="\t")
 
 
 if __name__ == "__main__":

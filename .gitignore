@@ -9,3 +9,7 @@ src/news_bert.py
 *.log
 merge_ndjson.py
 remove_retweets.py
+src/get_en_data/apis.txt
+src/get_en_data/hydrated_*
+src/get_en_data/*.tsv
+src/get_en_data/*.txt

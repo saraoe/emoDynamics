@@ -162,7 +162,7 @@ def main(in_filepath: str, out_filepath: str, language: str):
 
         append_list_as_row(f'{out_filepath}.csv', row)
         mid_time = time.time()
-        if index % 100 == 0: 
+        if index % 10000 == 0: 
             print(f'Running model on row number {index} now finished - time in min: {(mid_time - model_time)/60}')
 
 
@@ -180,7 +180,7 @@ if __name__=='__main__':
     print("Starting time")
     time_start = time.time()
 
-    in_filepath = args.in_filepath + '*'
+    in_filepath = args.in_filepath + '*.ndjson'
     out_filepath = args.out_filepath
     language = args.language
 

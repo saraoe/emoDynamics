@@ -72,7 +72,7 @@ def main(in_filepath: str, out_filepath: str, language: str):
         )
 
         # nlp = spacy.load("da_core_news_lg")
-        nlp = spacy.blank('da')
+        nlp = spacy.blank("da")
         Doc.set_extension("vader_da", getter=da_vader_getter, force=True)
         nlp = add_berttone_subjectivity(nlp)
         nlp = add_bertemotion_laden(nlp)

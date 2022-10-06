@@ -22,6 +22,8 @@ def get_emotion_distribution(emo: str):
     emo_list = re.split(r"\s+", emo[1:-1])
     while "" in emo_list:  # often there is whitespace at the end
         emo_list.pop()
+    if "nan" in emo_list:  # sometimes the topic model predict nan and inf
+        return [0 if emo == "nan" else 1 for emo in emo_list]
     emo_list = list(map(lambda x: float(x), emo_list))
     return emo_list
 

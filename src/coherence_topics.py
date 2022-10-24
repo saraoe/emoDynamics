@@ -91,7 +91,6 @@ def main(path, n_texts, measure, language):
     regex = re.compile("(?u)\\b\\w\\w+\\b")
     pool = multiprocessing.Pool(5)
     tok_tweets = pool.map(functools.partial(tokenize, vocab=vocab, regex=regex), tweets)
-    # tok_tweets = tokenizer(tweets, vocab)
 
     n_topics = [n * 10 for n in range(1, 30)]
     coherences = []

@@ -1,6 +1,6 @@
 # Emotion dynamics on tweets during COVID19
 
-![Resonance](fig/W3_smooth150_res.png)
+![Resonance](fig/W3_resonance_wsmoothing_2022-07.png)
 
 ## Abstract
 Research  using  Twitter  data  has  become  increasingly  popular  in  the  last  few years.  This study investigates whether the temporal dynamics of Twitter can be characterized with windowed relative entropy measures using probability distributions based on the Danish BERT Emotion model as latent variables.  We find  that  this  method  does  seem  to  capture  changes  in  discourse  on  Twitter over time.  The validity of the method is supported by repeating the analysis using BERT Tone polarity distributions as latent variables.  Advantages of the approach are discussed along with possible limitations.  Hereafter, the signal is explored using linear models prediction resonance from novelty, and the influence of individual emotions is assessed using Pearson’s *r*.  The findings of this study lays the ground for future studies of dynamics of emotions on Twitter, and possible directions of this is considered.
@@ -23,6 +23,7 @@ The organization of the project is as follows:
 │   ├── tweets_bert.py
 │   ├── summarize_models.py
 │   ├── emotionFluxus.py
+│   ├── smoothing.py
 │   └── ...
 ├──  summarized_emo            <- ndjson-files with summarized scores of emotion distributions
 ├──  requirement.txt           <- A requirements file of the required packages.

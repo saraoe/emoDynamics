@@ -102,7 +102,7 @@ def main(path, n_texts, measure, language):
             n_components=n_topic,
             n_iterations=200,
             alpha=0.1,
-            beta=0.2,
+            beta=0.1,
         )
 
         pipeline = TopicPipeline(vectorizer, dmm)

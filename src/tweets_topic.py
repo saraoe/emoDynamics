@@ -47,14 +47,14 @@ def main(in_filepath: str, out_filepath: str, n_topics: int, language: str):
 
     vectorizer = CountVectorizer(
         stop_words=stop_words,
-        max_df=0.3,
-        min_df=15,
+        max_df=0.5,
+        min_df=1,
     )
     dmm = DMM(
         n_components=n_topics,
         n_iterations=200,
         alpha=0.1,
-        beta=0.2,
+        beta=0.1,
     )
 
     print("------- \nfitting topics \n-------")

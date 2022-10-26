@@ -93,8 +93,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--n_topics",
         type=int,
-        required=False,
-        default=15,
+        required=True,
         help="Number of topics to fit.",
     )
     parser.add_argument(

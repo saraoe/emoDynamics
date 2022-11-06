@@ -114,7 +114,7 @@ if __name__ == "__main__":
     language = args.language
 
     print(
-        f"""Running tweets_bert.py with:
+        f"""Running tweets_topic.py with:
              in_filepath = {in_filepath},
              out_filepath= {out_filepath},
              n_topics= {n_topics},

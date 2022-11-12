@@ -79,7 +79,7 @@ def main(path, n_texts, measure, language):
     vectorizer = CountVectorizer(
         stop_words=stop_words,
         max_df=0.5,
-        min_df=1,
+        min_df=0.01,
     )
 
     print("vectorizing and tokenizing tweets")
@@ -92,7 +92,7 @@ def main(path, n_texts, measure, language):
     pool = multiprocessing.Pool(5)
     tok_tweets = pool.map(functools.partial(tokenize, vocab=vocab, regex=regex), tweets)
 
-    n_topics = [n * 10 for n in range(1, 30)]
+    n_topics = [n * 10 for n in range(1, 20)]
     coherences = []
 
     for i, n_topic in enumerate(n_topics, start=1):
@@ -124,7 +124,7 @@ def main(path, n_texts, measure, language):
         plt.plot(n_topics[:i], coherences, "--", color="grey")
         plt.xlabel("Number of topics")
         plt.ylabel(f"Coherence ({measure})")
-        plt.savefig(f"fig/topic_coherence_{measure}.png")
+        plt.savefig(f"fig/topic_coherence_{measure}_2.png")
 
 
 if __name__ == "__main__":

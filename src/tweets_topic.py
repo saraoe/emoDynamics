@@ -48,7 +48,7 @@ def main(in_filepath: str, out_filepath: str, n_topics: int, language: str):
     vectorizer = CountVectorizer(
         stop_words=stop_words,
         max_df=0.5,
-        min_df=1,
+        min_df=0.01,
     )
     dmm = DMM(
         n_components=n_topics,

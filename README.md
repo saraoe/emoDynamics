@@ -2,8 +2,13 @@
 
 ![Resonance](fig/W3_resonance_wsmoothing_2022-07.png)
 
-## Abstract
-Research  using  Twitter  data  has  become  increasingly  popular  in  the  last  few years.  This study investigates whether the temporal dynamics of Twitter can be characterized with windowed relative entropy measures using probability distributions based on the Danish BERT Emotion model as latent variables.  We find  that  this  method  does  seem  to  capture  changes  in  discourse  on  Twitter over time.  The validity of the method is supported by repeating the analysis using BERT Tone polarity distributions as latent variables.  Advantages of the approach are discussed along with possible limitations.  Hereafter, the signal is explored using linear models prediction resonance from novelty, and the influence of individual emotions is assessed using Pearson’s *r*.  The findings of this study lays the ground for future studies of dynamics of emotions on Twitter, and possible directions of this is considered.
+## About Project
+The aim for the project is to uncover dynamics on social media using emotion classification and applying relative entropy measures *novelty* and *resonance* to summarized probability distributions outputted by the model. The figure above shows the resonance signal from emotion classifications of 43 million Danish tweets between 2019-2022. 
+
+### Models
+This project contains script for using both emotion classifiers and topic modeling as the latent variable. The scripts can be used on both Danish and English texts. 
+
+The Danish [BERT emotion](https://huggingface.co/DaNLP/da-bert-emotion-classification?text=Jeg+ejer+en+r%C3%B8d+bil+og+det+er+en+god+bil.) and [BERT tone](https://huggingface.co/DaNLP/da-bert-tone-sentiment-polarity?text=Det+er+super+godt) are used as emotion classifiers for Danish texts. [Distilbert-base-uncased-emotion](https://huggingface.co/bhadresh-savani/distilbert-base-uncased-emotion?text=you+look+stupid) is used as the emotion classifer for English texts. [tweetopic](https://github.com/centre-for-humanities-computing/tweetopic) is used for fitting topic models for both languages.
 
 ## Project Organization
 The organization of the project is as follows:
@@ -21,6 +26,7 @@ The organization of the project is as follows:
 │   └── ...
 ├── src                        <- main scripts
 │   ├── tweets_bert.py
+│   ├── tweets_topic.py
 │   ├── summarize_models.py
 │   ├── emotionFluxus.py
 │   ├── smoothing.py
@@ -34,14 +40,21 @@ The organization of the project is as follows:
 
 | Do | File| Output placement |
 |-----------|:------------|:--------|
-Run BERT models | ```src/tweets_bert.py```  | ```../data/```
+Run classification | ```src/tweets_bert.py``` or ```src/topics_bert.py```  | ```../data/```
 Summarize the emotion distributions | ```src/summarize_models.py``` | ```summarized_emo/```
 Run newsFluxus pipeline | ```src/emotionsFluxus.py``` | ```idmdl/```
 Smooth the signal | ```src/smoothing.py``` | ```idmdl/smoothed/```
 
 To see what input the different scripts need run ```-h``` (e.g. ```src/tweets_bert.py -h```).
 
-## Run the code
+Before running the code you must run the following to install requirements:
+```
+pip install -r requirements.txt
+git clone https://github.com/centre-for-humanities-computing/newsFluxus.git
+pip install -r newsFluxus/requirements.txt
+```
+
+## Reproduce results
 To reproduce the results clone this repository and run the following command
 ```
 bash run.sh

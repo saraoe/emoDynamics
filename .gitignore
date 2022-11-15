@@ -12,10 +12,7 @@ remove_retweets.py
 summarized_emo/tweets_emo_wRT*
 
 # en data
-src/get_en_data/apis.txt
-src/get_en_data/hydrated_*
-src/get_en_data/*.tsv
-src/get_en_data/*.txt
+src/get_en_data/*
 en_tweets/*
 da_requirements.txt
 summarized_emo/tweets_en*

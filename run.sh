@@ -9,3 +9,5 @@ python src/emotionFluxus.py --filenames tweets_pol_date --extract_emotions pol
 
 python src/smoothing.py --filename tweets_emo_date_W3 --span 150
 python src/smoothing.py --filename tweets_pol_date_W3 --span 150
+
+python src/changepoints.py --in_file tweets_emo_date_W3

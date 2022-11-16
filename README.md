@@ -1,14 +1,16 @@
 # Emotion dynamics on tweets during COVID19
 
-![Resonance](fig/W3_resonance_wsmoothing_2022-07.png)
-
+![Resonance](fig/resonance_cp_events_2022.png)
 ## About Project
 The aim for the project is to uncover dynamics on social media using emotion classification and applying relative entropy measures *novelty* and *resonance* to summarized probability distributions outputted by the model. The figure above shows the resonance signal from emotion classifications of 43 million Danish tweets between 2019-2022. 
 
-### Models
+### Classification models
 This project contains script for using both emotion classifiers and topic modeling as the latent variable. The scripts can be used on both Danish and English texts. 
 
-The Danish [BERT emotion](https://huggingface.co/DaNLP/da-bert-emotion-classification?text=Jeg+ejer+en+r%C3%B8d+bil+og+det+er+en+god+bil.) and [BERT tone](https://huggingface.co/DaNLP/da-bert-tone-sentiment-polarity?text=Det+er+super+godt) are used as emotion classifiers for Danish texts. [Distilbert-base-uncased-emotion](https://huggingface.co/bhadresh-savani/distilbert-base-uncased-emotion?text=you+look+stupid) is used as the emotion classifer for English texts. [tweetopic](https://github.com/centre-for-humanities-computing/tweetopic) is used for fitting topic models for both languages.
+The Danish [BERT emotion](https://huggingface.co/DaNLP/da-bert-emotion-classification?text=Jeg+ejer+en+r%C3%B8d+bil+og+det+er+en+god+bil.) and [BERT tone](https://huggingface.co/DaNLP/da-bert-tone-sentiment-polarity?text=Det+er+super+godt) are used as emotion classifiers for Danish texts. [Distilbert-base-uncased-emotion](https://huggingface.co/bhadresh-savani/distilbert-base-uncased-emotion?text=you+look+stupid) is used as the emotion classifer for English texts. The [tweetopic](https://github.com/centre-for-humanities-computing/tweetopic) python package is used for fitting topic models for both languages.
+
+### Change point detection
+The search method Pruned Exact Linear Time (PELT) is used to identify the change points in the resonance signal. This method not only finds the relevant change points but also determines the number of change points. The radial basis function (rbf) are used as the cost function. The model is fitted using the [ruptures](https://centre-borelli.github.io/ruptures-docs/) python package.
 
 ## Project Organization
 The organization of the project is as follows:
@@ -44,6 +46,7 @@ Run classification | ```src/tweets_bert.py``` or ```src/topics_bert.py```  | ```
 Summarize the emotion distributions | ```src/summarize_models.py``` | ```summarized_emo/```
 Run newsFluxus pipeline | ```src/emotionsFluxus.py``` | ```idmdl/```
 Smooth the signal | ```src/smoothing.py``` | ```idmdl/smoothed/```
+Identify change points | ```src/changepoints.py``` | ```idmdl/changepoints/```
 
 To see what input the different scripts need run ```-h``` (e.g. ```src/tweets_bert.py -h```).
 

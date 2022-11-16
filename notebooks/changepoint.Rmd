@@ -1,0 +1,397 @@
+---
+title: "Changepoints"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# install.packages('pacman')
+library(pacman)
+pacman::p_load(
+    tidyverse,
+    scales,
+    lubridate,
+    reshape2, 
+    patchwork
+)
+
+```
+
+## Data and setup
+Loading the data
+```{r}
+df <- read_csv("idmdl/changepoints/tweets_emo_date_W3_cp_4.csv") %>%
+                mutate(change_point=change_point+1) #%>%
+                # filter(resonance < 0.01 & novelty < 0.01)
+
+```
+
+
+Preparing datecolumn
+```{r}
+df <- df %>% mutate(date = as.Date(date))
+```
+
+See dates in change point windows
+```{r}
+head(df)
+df %>% group_by(change_point) %>% summarise(min_date = min(date),
+                                             max_date = max(date))
+```
+
+
+Define function
+```{r}
+# For signal including 2022
+get_text_position <- function(change_point){
+    y = 0.0055
+    if (change_point == 1){
+        x = as.Date("2019-07-01")
+    }
+    else if (change_point == 2){
+        x = as.Date("2020-07-01")
+    }
+    else if (change_point == 3){
+        x = as.Date("2020-12-28")
+        y = 0.011
+    }
+    else if (change_point == 4){
+        x = as.Date("2021-07-01")
+    }
+    else if (change_point == 5){
+        x = as.Date("2021-12-28")
+        y = 0.011
+    }
+    else if (change_point == 6){
+        x = as.Date("2022-04-20")
+    }
+    return(c(x, y))
+}
+```
+
+
+Prepare dfs for coloring background by change point and adding text
+```{r}
+# # Remove if they exist before loop
+rm(color_df)
+rm(text_df)
+
+###########################################
+# Background color and change point title #
+###########################################
+
+for (point in unique(df$change_point)){ # Loop over change points
+  # Subset from df
+  sub = df %>% subset(change_point == point)
+  # Get text position x and y
+  positions = get_text_position(point)
+  
+  # Df for background color
+  temp_col <- tibble(start = min(sub$date)-1,
+                 end = max(sub$date),
+                 change_point = point)
+
+  # Df for change point title text
+  temp_text <- tibble(x_pos = positions[1],
+                      y_pos = as.numeric(positions[2]),
+                      text = paste("Change point period", point, sep = " "),
+                      change_point=point)
+  
+  # Bind
+  if (exists('color_df')){color_df <- rbind(color_df, temp_col)} else {color_df <- temp_col}
+  if (exists('text_df')){text_df <- rbind(text_df, temp_text)} else {text_df <- temp_text}
+}
+
+# Make background go all the way 
+color_df$start[1] = -Inf
+color_df$end[6] = Inf
+
+# Remove temporary dfs from environment
+rm(temp_col, temp_text)
+
+
+######################################
+# Manually define events of interest #
+######################################
+covid_manual <- df %>% 
+    subset(date == "2020-01-30" | # WHO: covid is a threat
+           date == "2020-02-26" | # First DK citizen
+           date == "2020-03-11" | # Lockdown
+           date == "2020-03-17" | # Queen's speech
+           date == "2020-04-20" | # Partial reopening
+           date == "2020-07-31" | # face masks
+           date == "2020-11-04" | # kill the mink
+           date == "2020-12-27" | # First dk vaccination
+           date == "2021-01-28" | # Lockdown prolonged
+           date == "2021-04-14" |  # AZ withdrawn
+           date == "2021-05-28" | # Coronapas-app published in App-store
+           date == "2021-07-05" | # delta variant dominat
+           date == "2021-09-01" | # no longer "samfundskritisk sygdom"
+           date == "2021-11-11" | # again "samfundskritisk sygdom"
+           date == "2022-02-01" | # no longer "samfundskritisk sygdom"
+           date == "2022-04-06"  # quick testcenters closes
+            ) %>% 
+    mutate(change_point = as.factor(change_point),
+           n_event = seq(1,16),
+           date = ifelse(n_event==9, as.Date(date)+4,ifelse(n_event==10, as.Date(date)-10, as.Date(date))),
+           y_pos= ifelse(resonance>=0, resonance+0.001, resonance-0.0008)) %>%
+    mutate(date= as.Date(date, origin="1970-01-01"))
+
+```
+
+Defining colors
+
+```{r}
+color1 = "#2C76A8"
+color2 = "#4cbbc2" # "#4CC5CB"
+color3 = "#004079"
+color4 = "#008C76FF"
+
+fill_colors= c(color1, color2, color3, color4, color1, color2)
+col_colors = c(color1, color2, color3, color4, color1, color2, color2, color3, color4)
+
+```
+
+# Raw resonance and novelty
+```{r}
+res_plot <- df %>% ggplot(aes(y=resonance, x=date)) +
+                geom_line(color = "steelblue") +
+                labs(x = "", y = "Resonance") +
+                theme_bw() +
+                theme(text = element_text(family = "serif"),
+                        axis.text = element_text(size=15),
+                        axis.title = element_text(size=18))
+
+nov_plot <- df %>% ggplot(aes(y=novelty, x=date)) +
+                geom_line(color = "steelblue") +
+                labs(x = "Date", y = "Novelty") +
+                theme_bw() +
+                theme(text = element_text(family = "serif"),
+                        axis.text = element_text(size=15),
+                        axis.title = element_text(size=18))
+
+patch <- res_plot / nov_plot
+patch
+# ggsave("fig/res_nov.png", patch, width=8)
+```
+
+# Resonance signal with changepoint periods and events
+```{r}
+plot<-ggplot()+
+    # Resonance signal
+    geom_line(data=df, 
+              aes(date, resonance), 
+              size=0.4)+
+
+    # Background
+    geom_rect(data = color_df,
+              aes(xmin=as.Date(start),
+                  xmax=as.Date(end),
+                  ymin=-Inf,
+                  ymax=Inf,
+                  fill = as.factor(change_point)),
+              alpha=0.1)+
+    
+    # Change point text
+    geom_text(data=text_df,
+              aes(x=x_pos, 
+                  y=y_pos, 
+                  label=str_wrap(text, width = 12), 
+                  color=as.factor(change_point)), 
+              size = 4,
+              family="serif")+
+
+    # Event points
+    geom_point(data=covid_manual,
+               aes(x=date,
+                   y=resonance), 
+               alpha=0.6,
+               size = 3,
+               color="sienna4")+
+    
+    # Text for event points
+    geom_text(data=covid_manual,
+              aes(x=date, 
+                  y=y_pos,
+                #   color=change_point,
+                  label=n_event),
+              size=3.5,
+              family="serif",
+              color="sienna4")+
+    
+    # Color and axis setup
+    scale_fill_manual(values=fill_colors)+
+    scale_color_manual(values=col_colors)+
+    scale_x_date(breaks = floor_date(seq(min(df$date), max(df$date), by = 'quarter'), unit = "quarter"),
+                 labels = date_format('%b-%Y'))+
+    
+    # Text size, font, axis labels and remove legend
+    theme_bw()+
+    labs(x="Date", y = "Resonance", title = "Resonance, change points and selected events")+
+    theme(axis.text = element_text(size=11),
+          axis.title = element_text(size=15),
+          axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+          text = element_text(family = "serif"),
+          legend.position = "none")
+
+plot
+# ggsave("fig/resonance_cp_events_2022.png", plot, width=8, height=5)
+```
+
+# Change point densities
+```{r}
+qs = c(0.03, 0.25, 0.5, 0.75, 0.97)
+
+df2 <- df %>% group_by(change_point) %>%
+    summarize(
+              res_q = quantile(resonance, qs), 
+              q = qs
+              )
+
+df2_lower <- df2 %>% filter(q == min(qs))
+df2_upper <- df2 %>% filter(q == max(qs))
+
+df2 <- data.frame(
+    change_point = df2_lower$change_point,
+    res_lower = df2_lower$res_q,
+    res_upper = df2_upper$res_q
+)
+
+p <- ggplot(data = df) + 
+    geom_density(aes(x = resonance), color='steelblue', size=1) +
+    geom_text(data=df2_lower, mapping=aes(x=res_q, label=paste(round(res_q, 3)), y=60),  
+                                #  angle=90, 
+                                hjust = 'outward',
+                                family = "serif",
+                                size = 5
+                                ) +
+    geom_text(data=df2_upper, mapping=aes(x=res_q, label=paste(round(res_q, 3)), y=60),  
+                                #  angle=90, 
+                                hjust = 'inward',
+                                family = "serif",
+                                size = 5
+                                ) +
+    geom_segment(data = df2, mapping = aes(x=res_lower,xend=res_upper,y=0,yend=0), size=1) +
+    facet_wrap(.~change_point) + 
+    labs(y='Density', x = 'Resonance') +
+    theme_bw() + 
+    theme(strip.background =element_rect(fill="white"),
+          axis.text = element_text(size=12),
+          axis.title = element_text(size=15),
+          strip.text.x = element_text(size = 15),
+          text = element_text(family = "serif"))
+p
+# ggsave("fig/res_density.png", p, width=8, height=8)
+```
+
+# Resonance-novelty slope 
+```{r}
+for (n in unique(df$change_point)){
+    df_changepoint <- df %>% filter(change_point==n)
+    tmp_p <- ggplot(data = df_changepoint, aes(x = novelty, y = resonance)) + 
+        geom_point(alpha=0.5) +
+        geom_smooth(method = lm, color='steelblue') +  
+        labs(title = paste("Change point period", n, sep = " "),
+             x = "Novelty",
+             y = "Resonance") +
+        theme_bw() + 
+        theme(text = element_text(family = "serif"),
+              axis.text = element_text(size=11),
+              axis.title = element_text(size=12),
+              plot.title = element_text(size=15))
+    eval(parse(text=paste('p_', n, ' <- tmp_p', sep='')))
+}
+
+patch <- (p_1 + p_2) / (p_3 + p_4) / (p_5 + p_6)
+patch
+# ggsave("fig/rn_slopes_2022_rm_outliers.png", patch, width=8, height=8)
+```
+
+# Correlation in change point windows
+```{r}
+labels = c('happiness',
+            'trust',
+            'expectation',
+            'surprised',
+            'anger',
+            'contempt',
+            'grief',
+            'fear')
+```
+
+```{r}
+
+for (cp in unique(df$change_point)){
+    emos = df %>% subset(change_point == cp) %>% select(labels)
+    corr_mat = melt(round(cor(emos),3))
+    
+    plot <- corr_mat %>% ggplot(aes(Var1, Var2, fill=value))+
+                            geom_tile(color="White")+
+                            scale_fill_gradient2(low="#234FAF",
+                                                 high="#D75038", 
+                                                 mid="#F4F0FF",
+                                                 limit=c(-1,1),
+                                                 midpoint=0,
+                                                 name="")+
+                            geom_text(aes(Var1, Var2, label = value), color = "black", size = 2) +
+                            labs(title=paste("Change point period", cp))+
+                            theme(axis.text.x = element_text(angle=20, hjust=1, size = 7),
+                                  axis.text.y = element_text(size = 7),
+                                  axis.title.x = element_blank(),
+                                  axis.title.y = element_blank(),
+                                  panel.grid.major = element_blank(),
+                                  panel.border = element_blank(),
+                                  panel.background = element_blank(),
+                                #   axis.ticks = element_blank(),
+                                  plot.title=element_text(size=8),
+                                  text=element_text(family="serif", size=9))+
+                            coord_fixed()
+    eval(parse(text=paste('p_', cp, ' <- plot', sep='')))
+    # ggsave(paste("fig/corr_mat_cp_", cp, ".png", sep = ""), plot, width=6, height=6)
+}
+patch = (p_1 + p_2) / (p_3 + p_4) / (p_5 + p_6)
+patch
+better_patch <- (patch & theme(legend.position = "right")) + plot_layout(guides = "collect")
+better_patch
+
+# ggsave("fig/corr_mat_2022.png", better_patch, width=7, height=7)
+```
+
+
+## Raw emotion distributions
+```{r}
+labels = c('happiness',
+            'trust',
+            'expectation',
+            'surprised',
+            'anger',
+            'contempt',
+            'grief',
+            'fear')
+```
+
+Prepare df in long format
+```{r}
+emos <- df %>% select(c("date", labels))
+emos_melt <- melt(emos, id=c("date"))
+
+```
+
+
+```{r}
+raw_emotions <- emos_melt %>% ggplot(aes(date, value, color=variable))+
+                geom_line()+
+                theme_bw()+
+                # scale_color_manual("Emotion", values = vals)+
+                scale_color_brewer("Emotion", palette="Dark2")+
+                labs(x="Date", y="Probability")+
+                scale_x_date(
+                labels = date_format('%b-%Y'))+
+                theme(axis.text = element_text(size=11),
+                    axis.title = element_text(size=15),
+                    text = element_text(family = "serif", size=13)
+                    )
+raw_emotions
+# ggsave("fig/raw_emotions_2022.png", raw_emotions, width=8, height=5)
+
+```
+

@@ -5,12 +5,13 @@ thinc[torch]
 spacy-transformers
 https://huggingface.co/spacy/da_core_news_lg/resolve/main/da_core_news_lg-any-py3-none-any.whl
 ndjson==0.3.1
-pandas==1.1.5
+pandas==1.4.0
 sklearn==0.0
 statsmodels==0.12.2
-matplotlib==3.3.3
+matplotlib==3.5.0
 seaborn==0.11.2
 pyplot-themes==0.2.2
-spacy_wrap
+# spacy_wrap
 tweetopic==0.1.2
 tmtoolkit==0.11.2
+ruptures==1.1.6

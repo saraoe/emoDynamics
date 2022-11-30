@@ -53,7 +53,7 @@ def emotions_dict(df: pd.DataFrame, emotion_col: str, labels: List[str]):
 
 def write_model_df(
     df: pd.DataFrame,
-    change_locations: List[int],
+    change_locations: dict,
     emotion_col: Optional[str] = "emo_prob",
     labels: Optional[List[str]] = [
         "Glæde/Sindsro",
@@ -73,42 +73,40 @@ def write_model_df(
 
     Args:
         df (pd.Dataframe): dataframe with information signal
-        change_locations (List[int]): list of where the change points are (to index the df)
+        change_locations (dict): dict with name of col and list of where the change points are (to index the df)
         out_path (str): path for saving the dataframe
         emotion_col (Optional[str]): name of the col with the emotion probabilities. Defaults to 'emo_prob'.
         labels (Optional[List[str]]): List of the labels. If it is not specified the labels from the BERT emotion model us used.
 
     """
-    # define the model df
-    cols = ["change_point", "resonance", "novelty", "transience"]
+    for col_name, cl in change_locations.items():
+        cp = []
+        for n, (i, j) in enumerate(zip([0] + cl[:-1], cl)):
+            cp += [n for _ in range(j - i)]
+        df[col_name] = cp
+
+    # get values for labels
     if labels:
-        cols += labels
-    model_df = pd.DataFrame(columns=cols)
+        emo_dict = emotions_dict(df, emotion_col, labels)
+        tmp = pd.DataFrame.from_dict({**emo_dict})
+        df = df.join(tmp)
 
-    for n, (i, j) in enumerate(zip([0] + change_locations[:-1], change_locations)):
-        tmp_dict = {"change_point": n}
-        tmp_df = df.iloc[i:j]
-        # get information signals
-        for col in ["date", "resonance", "novelty", "transience"]:
-            tmp_dict[col] = tmp_df[col]
-
-        if labels:
-            # get emotion values
-            emo_dict = emotions_dict(tmp_df, emotion_col, labels)
-            # concat with dataframe
-            tmp = pd.DataFrame.from_dict({**tmp_dict, **emo_dict})
-        else:
-            tmp = pd.DataFrame.from_dict({**tmp_dict})
-
-        model_df = pd.concat([model_df, tmp])
+    # save csv
     if out_path:
-        model_df.to_csv(out_path)
-    return model_df
+        df.to_csv(out_path)
+    return df
 
 
 def main(df, out_path, penalty, labels):
-    change_locations = detect_change_points(df["resonance"].to_numpy(), penalty)
-    print(f"change locations found: {change_locations}")
+    change_locations_res = detect_change_points(df["resonance"].to_numpy(), penalty)
+    change_locations_nov = detect_change_points(df["novelty"].to_numpy(), penalty)
+    print(
+        f"change locations found:\n Resonance: {change_locations_res}\n Novelty: {change_locations_nov}"
+    )
+    change_locations = {
+        "change_point_res": change_locations_res,
+        "change_point_nov": change_locations_nov,
+    }
     write_model_df(
         df=df, change_locations=change_locations, out_path=out_path, labels=labels
     )
@@ -141,7 +139,9 @@ if __name__ == "__main__":
     in_filepath = os.path.join("idmdl", f"{args.in_file}.csv")
     pen = args.penalty
     labels = args.labels
-    out_path = os.path.join("idmdl", "changepoints", f"{args.in_file}_cp_{pen}.csv")
+    out_path = os.path.join(
+        "idmdl", "changepoints", f"{args.in_file}_cp_{pen}.csv"
+    )
     df = pd.read_csv(in_filepath)
 
     print(

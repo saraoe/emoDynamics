@@ -306,6 +306,31 @@ patch
 # ggsave("fig/rn_slopes_2022_rm_outliers.png", patch, width=8, height=8)
 ```
 
+```{r}
+df <- df %>% mutate(
+    zresonance = scale(resonance),
+    znovelty = scale(novelty)
+)
+
+model <- lm(zresonance ~ znovelty, data=df)
+print(summary(model))
+```
+
+```{r}
+for (n in unique(df$change_point)){
+    print(paste('CHANGE POINT =', n))
+    df_changepoint <- df %>% filter(change_point==n)
+    model <- lm(zresonance ~ znovelty, data=df_changepoint)
+    model_summary <- summary(model)
+    estimate <- model_summary$coefficients[2,1]
+    confidence_int <- model_summary$coefficients[2,2]*1.96
+    print(model_summary)
+    print(paste("estimate: ", estimate, 
+                " [", estimate-confidence_int, ",", estimate+confidence_int, "]",
+                sep=""))
+}
+```
+
 # Correlation in change point windows
 ```{r}
 labels = c('happiness',
